@@ -31,7 +31,8 @@ class GraphVisualization:
 
 #xd = g.graph[1][2]["weights"]
 
-g = GraphVisualization()
-g.create_network([1,5,4,3,2,1], [10, 8, 11, 3, 25])
-#g.create_network([1,5,10,1], [10,4,2])
-g.visualize()
+# Example usage:
+# g = GraphVisualization()
+# g.create_network([1,5,4,3,2,1], [10, 8, 11, 3, 25])
+# #g.create_network([1,5,10,1], [10,4,2])
+# g.visualize()
