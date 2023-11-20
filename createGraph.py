@@ -22,7 +22,7 @@ import numpy as np
 
 # stores the distances (in m) from one building on the UWaterloo campus to another
 #          CIF V1	CMH	  NH   E7    MC	 PAC  SLC  QNC	LIB	 DC	  E3   EV3	STC	SCH                 IDs
-dist_map = [[0, 430, 1130, 690, 750, 500, 380, 470, 570, 780, 590, 730, 900, 630, 930],  # CIF       [0]
+dist_map = [[0, 430, 1130, 690, 750, 500, 380, 470, 570, 780, 590, 730, 900, 630, 930], # CIF       [0]
            [430, 0, 1120, 540, 860, 490, 320, 370, 470, 650, 640, 730, 660, 550, 820],  # V1        [1]
            [1130, 1120, 0, 600, 400, 650, 820, 740, 640, 490, 550, 400, 620, 560, 340], # CMH       [2]
            [690, 540, 600, 0, 490, 240, 330, 230, 140, 120, 340, 300, 200, 120, 290],   # NH        [3]
@@ -37,6 +37,26 @@ dist_map = [[0, 430, 1130, 690, 750, 500, 380, 470, 570, 780, 590, 730, 900, 630
            [900, 660, 620, 200, 630, 450, 510, 410, 350, 200, 510, 440, 0, 330, 270],   # EV3       [12]
            [630, 550, 560, 120, 380, 140, 270, 190, 70, 160, 210, 210, 330, 0, 310],    # STC       [13]
            [930, 820, 340, 290, 440, 440, 570, 490, 370, 170, 420, 270, 270, 310, 0]]   # SCH       [14]
+  
+# stores the coordinates of each campus building, where QNC is the center of the coordinate system
+# Note: The coordinates do not relate to any units (m, km, etc.), they were estimatet using the pixel coordinates of each building on a screenshot of Google Maps
+#              [  x ,  y ]   Building   IDs
+coordinates = [[-325,-515], # CIF       [0]
+               [-513,-55],  # V1        [1]
+               [738,115],   # CMH       [2]
+               [50,156],    # NH        [3]
+               [446,-244],  # E7        [4]
+               [40,-123],   # MC        [5]
+               [-175,-111], # PAC       [6]
+               [-112,-78],  # SLC       [7]
+               [0,0],       # QNC       [8]
+               [188,187],   # LIB (DP)  [9]
+               [227,-157],  # DC        [10]
+               [326,-55],   # E3        [11]
+               [65,382],    # EV3       [12]
+               [78,82],     # STC       [13]
+               [377,270]]   # SCH       [14]
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------------
 #                                                CampusGraph Class
