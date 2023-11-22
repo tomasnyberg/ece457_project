@@ -1,161 +1,110 @@
-# Code updated from https://github.com/JPablo-bot/ACO-Metro-Mexico-City
+# Acknowledge to https://github.com/Akavall/AntColonyOptimization
+import random as rn
 import numpy as np
-from math import sqrt
-
-def euclidean_distance(p1, p2):
-    sum = 0
-    for i in range(len(p1)):
-        sum += (p1[i] - p2[i]) ** 2
-    d = sqrt(sum)
-    return d
+from numpy.random import choice as np_choice
 
 
-def initialize_pheromone(connections):
-    return np.ones((len(connections), 1)) * 0.01
+class AntColony(object):
 
+    def __init__(self, distances, start, end):
+        """
+        Args:
+            distances (2D numpy.array): Square matrix of distances. Diagonal is assumed to be np.inf.
+            n_ants (int): Number of ants running per iteration
+            n_best (int): Number of best ants who deposit pheromone
+            n_iteration (int): Number of iterations
+            decay (float): Rate it which pheromone decays. The pheromone value is multiplied by decay, so 0.95 will lead to decay, 0.5 to much faster decay.
+            alpha (int or float): exponenet on pheromone, higher alpha gives pheromone more weight. Default=1
+            beta (int or float): exponent on distance, higher beta give distance more weight. Default=1
 
-def calculate_visibility(connections, nodes):
-    distances = np.zeros((len(connections), 1))
-    visibility = np.zeros((len(connections), 1))
+        Example:
+            ant_colony = AntColony(german_distances, 100, 20, 2000, 0.95, alpha=1, beta=2)          
+        """
+        self.distances = distances
+        self.pheromone = np.ones(self.distances.shape) / len(distances)
+        self.all_inds = range(len(distances))
+        self.start = start
+        self.end = end
+        self.n_ants = 1
+        self.n_best = 1
+        self.n_iterations = 100
+        self.decay = 0.95
+        self.alpha = 1
+        self.beta = 1
 
-    for i in range(len(connections)):
-        distances[i] = euclidean_distance(
-            nodes[connections[i][0]], nodes[connections[i][1]])
-        visibility[i] = 1 / distances[i]
+    def run(self):
+        shortest_path = None
+        all_time_shortest_path = ("placeholder", np.inf)
+        for i in range(self.n_iterations):
+            all_paths = self.gen_all_paths()
+            
+            self.spread_pheronome(all_paths, self.n_best,
+                                  shortest_path=shortest_path)
+            shortest_path = min(all_paths, key=lambda x: x[1])
+            print(shortest_path)
+            if shortest_path[1] < all_time_shortest_path[1]:
+                all_time_shortest_path = shortest_path
+            self.pheromone = self.pheromone * self.decay
+        
+        shortest_path, costs = all_time_shortest_path
+        formatted_shortest = self.edges_to_nodes_ordered(shortest_path)
+        
+        return formatted_shortest, costs
 
-    return visibility
+    def spread_pheronome(self, all_paths, n_best, shortest_path):
+        sorted_paths = sorted(all_paths, key=lambda x: x[1])
+        for path, dist in sorted_paths[:n_best]:
+            for move in path:
+                self.pheromone[move] += 1.0 / self.distances[move]
 
+    def gen_path_dist(self, path):
+        total_dist = 0
+        for ele in path:
+            total_dist += self.distances[ele]
+        return total_dist
 
-def select_next_node(probability, select_line):
-    select = np.random.rand()
-    [camx, camy] = np.where(select < select_line)
-    [antTox, antToy] = np.where(probability == probability[camx[0]])
-    return int(antTox[0])
+    def gen_all_paths(self):
+        all_paths = []
+        for i in range(self.n_ants):
+            # Update path for the start of the code
+            path = self.gen_path(self.start)
+            all_paths.append((path, self.gen_path_dist(path)))
+        return all_paths
 
+    def gen_path(self, start):
+        path = []
+        visited = set()
+        visited.add(start)
+        prev = start
+        for i in range(len(self.distances) - 1):
+            move = self.pick_move(
+                self.pheromone[prev], self.distances[prev], visited)
+            path.append((prev, move))
+            prev = move
+            visited.add(move)
+        path.append((prev, start))
+        return path
 
-def update_pheromone(pheromone, all_ants, connections, all_distances):
-    rho = 0.5  # Factor de evaporación
-    Q = 1  # Factor de olvido
+    def pick_move(self, pheromone, dist, visited):
+        pheromone = np.copy(pheromone)
+        pheromone[list(visited)] = 0
 
-    for i in range(len(pheromone)):
-        dTau = 0
-        for j in range(len(all_ants)):
-            ant_passed = False
-            ant = np.array(all_ants[j])
-            ant_location = np.zeros(np.shape(ant))
-            ant_location = np.where(
-                ant == connections[i][0], True, ant_location)
-            ant_location = np.where(
-                ant == connections[i][1], True, ant_location)
-            for k in range(len(ant_location)):
-                if ant_location[k][0] == 1 and ant_location[k][1] == 1:
-                    ant_passed = True
+        row = pheromone ** self.alpha * ((1.0 / dist) ** self.beta)
 
-            if ant_passed:
-                dTau = dTau + (Q / all_distances[j])
+        norm_row = row / row.sum()
+        move = np_choice(self.all_inds, 1, p=norm_row)[0]
+        return move
+    
+    def edges_to_nodes_ordered(self, edge_list):
+        array = []
+        counter = 0
+        for edge in edge_list:
+            x, y = edge
+            if(counter == 0):
+                array.append(x)
+                array.append(y)
+            else:
+                array.append(y)
+            counter += 1
 
-        pheromone[i] = (1 - rho) * pheromone[i] + dTau
-
-# Main ants algorithm, it adds start an end notes with connections and sends the best possible route
-def ants_at_waterloo(start, end, nodes, connections):
-    pheromone = initialize_pheromone(connections)
-    visibility = calculate_visibility(connections, nodes)
-
-    count = 0
-    alpha = 1
-    beta = 1
-    min_nodes = len(nodes)
-
-    while count < 10:
-        n_ants = 50
-        all_ants = []
-
-        for _ in range(n_ants):
-            current_ant = move_ant(
-                start, end, alpha, beta, pheromone, visibility, connections, all_ants)
-            all_ants.append(current_ant)
-
-        all_distances = calculate_distances(all_ants, connections)
-
-        update_pheromone(pheromone, all_ants, connections, all_distances)
-
-        start, end, final_route, min_nodes, count, beta = update_parameters(
-            start, end, all_distances, min_nodes, beta, count)
-
-    return final_route
-
-
-def move_ant(start, end, alpha, beta, pheromone, visibility, connections, all_ants):
-    current_ant = []
-    previous = -1
-
-    while start != end:
-        pheromone_route = np.where(connections[:, 0] == start)
-        [indx, indy] = np.where(connections[pheromone_route, 1] == previous)
-
-        if indy.size > 0:
-            pheromone_route = np.delete(pheromone_route, int(indy))
-
-        denominator = (
-            (pheromone[pheromone_route[:]]**alpha) * (visibility[pheromone_route[:]]**beta))
-        denominator = sum(denominator)
-
-        probability = (
-            ((pheromone[pheromone_route[:]]**alpha)*(visibility[pheromone_route[:]]**beta)) / denominator)
-
-        select_line = calculate_selection_probability(probability)
-
-        next_node = select_next_node(probability, select_line)
-
-        current_ant.append([previous, start])
-        previous = start
-        start = int(connections[np.array(pheromone_route).T[next_node], 1])
-
-    all_ants.append(current_ant)
-
-    return current_ant
-
-
-def calculate_distances(all_ants, connections):
-    all_distances = []
-
-    for i in range(len(all_ants)):
-        index_distances = []
-        for j in range(len(all_ants[i])):
-            for k in range(len(connections)):
-                if (all_ants[i][j] == connections[k]).all():
-                    index_distances.append(k)
-        all_distances.append(sum(index_distances))
-
-    return all_distances
-
-
-def update_parameters(start, end, all_distances, all_ants, min_nodes, beta, count):
-    all_distances = np.array(all_distances)
-    final_route = []
-
-    for i in range(len(all_distances)):
-        if all_distances[i] < min_nodes:
-            min_nodes = all_distances[i]
-            final_route = all_ants[i]
-            count = 0
-
-    count += 1
-
-    if len(final_route) > min_nodes:
-        beta -= 0.05
-        count = 0
-
-    return start, end, final_route, min_nodes, count, beta
-
-
-def calculate_selection_probability(probability):
-    select_line = []
-    sum = 0
-
-    for i in range(len(probability)):
-        sum = sum + probability[i]
-        select_line.append(sum)
-
-    select_line = np.array(select_line)
-    return select_line
+        return array
