@@ -60,8 +60,6 @@ def visualize_random_path(campus_graph, iterations = 100):
     """
     g = GraphVisualization()
     best_random = iterate_random_algorithm(campus_graph, iterations)
-    for i in range(len(best_random[1])):
-        best_random[1][i] = NODE_NAMES[best_random[1][i]]
     g.create_network(best_random[1], POSITIONS, best_random[2])
     g.visualize()
 

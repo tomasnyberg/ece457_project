@@ -21,7 +21,7 @@ class GraphVisualization:
             self.edges.append([path[i], path[i+1]])
             self.labels[(path[i], path[i+1])] = weights[i]
 
-            self.graph.add_node(path[i], pos=position[i])
+            self.graph.add_node(path[i], pos=position[path[i]])
             self.color_map.append('#FA8072') if i == 0 else self.color_map.append('#02CCFE')
 
         self.graph.add_edges_from(self.edges)
@@ -31,8 +31,8 @@ class GraphVisualization:
         plt.imshow(img)
 
         pos = nx.get_node_attributes(self.graph, 'pos')
-        nx.draw(self.graph, pos, node_color=self.color_map, with_labels=True)
-        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=self.labels)
+        nx.draw(self.graph, pos, node_color=self.color_map, with_labels=True, node_size=0, font_size=0)
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=self.labels, font_size=6)
         plt.show() 
         plt.figure()
 
