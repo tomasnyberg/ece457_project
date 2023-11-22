@@ -37,25 +37,27 @@ class AntColony(object):
         all_time_shortest_path = ("placeholder", np.inf)
         for i in range(self.n_iterations):
             all_paths = self.gen_all_paths()
-            
+
             self.spread_pheronome(all_paths, self.n_best,
                                   shortest_path=shortest_path)
             shortest_path = min(all_paths, key=lambda x: x[1])
-            print(shortest_path)
             if shortest_path[1] < all_time_shortest_path[1]:
                 all_time_shortest_path = shortest_path
             self.pheromone = self.pheromone * self.decay
-        
+
         shortest_path, costs = all_time_shortest_path
         formatted_shortest = self.edges_to_nodes_ordered(shortest_path)
-        
+
         return formatted_shortest, costs
 
     def spread_pheronome(self, all_paths, n_best, shortest_path):
         sorted_paths = sorted(all_paths, key=lambda x: x[1])
-        for path, dist in sorted_paths[:n_best]:
+        for path, path_distance in sorted_paths[:n_best]:
             for move in path:
-                self.pheromone[move] += 1.0 / self.distances[move]
+                if path_distance != 0:
+                    self.pheromone[move] += 1.0 / self.distances[move]
+                else:
+                    self.pheromone[move] += 1.0
 
     def gen_path_dist(self, path):
         total_dist = 0
@@ -82,25 +84,41 @@ class AntColony(object):
             path.append((prev, move))
             prev = move
             visited.add(move)
+            # If we reach to the end of the route we simply return the value
+            if (prev == self.end):
+                break
+
         path.append((prev, start))
         return path
 
-    def pick_move(self, pheromone, dist, visited):
-        pheromone = np.copy(pheromone)
-        pheromone[list(visited)] = 0
+    def get_reciprocal(self, path_distance):
+        reciprocal_array = np.zeros_like(path_distance, dtype=float)
+        for i in range(path_distance.shape[0]):
+            if path_distance[i] != 0:
+                reciprocal_array[i] = 1 / path_distance[i]
+            else:
+                reciprocal_array[i] = 0
+        return reciprocal_array
 
-        row = pheromone ** self.alpha * ((1.0 / dist) ** self.beta)
+    def pick_move(self, pheromone, path_distance, visited):
+        pheromone = np.copy(pheromone)
+
+        pheromone[list(visited)] = 0
+        visibility = self.get_reciprocal(path_distance)
+
+        row = pheromone ** self.alpha * (visibility ** self.beta)
 
         norm_row = row / row.sum()
         move = np_choice(self.all_inds, 1, p=norm_row)[0]
         return move
-    
+
+    # Makes the code into the required format
     def edges_to_nodes_ordered(self, edge_list):
         array = []
         counter = 0
         for edge in edge_list:
             x, y = edge
-            if(counter == 0):
+            if (counter == 0):
                 array.append(x)
                 array.append(y)
             else:
