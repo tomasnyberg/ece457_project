@@ -38,11 +38,11 @@ class GraphVisualization:
 
 #xd = g.graph[1][2]["weights"]
 
-nodes =[1,5,4,3,2,1]
-posisition = [(100,100), (350,400), (200,300), (750,100), (600,150)] 
-cost = [10, 8, 11, 3, 25]
+# nodes =[1,5,4,3,2,1]
+# posisition = [(100,100), (350,400), (200,300), (750,100), (600,150)] 
+# cost = [10, 8, 11, 3, 25]
 
 
-g = GraphVisualization()
-g.create_network(nodes, posisition, cost)
-g.visualize()
+# g = GraphVisualization()
+# g.create_network(nodes, posisition, cost)
+# g.visualize()

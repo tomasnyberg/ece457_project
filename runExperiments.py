@@ -7,6 +7,7 @@ from VisualizeGraph import GraphVisualization
 
 CAMPUS_GRAPH = create_campus_graph()
 NODE_NAMES = ["CIF", "V1", "CMH", "NH", "E7", "MC", "PAC", "SLC", "QNC", "LIB", "DC", "E3", "EV3", "STC", "SCH"]
+POSITIONS = [(815, 280), (515, 860), (1000, 790), (1100, 840), (1275, 800), (1230, 940), (1340, 1040), (1300, 1150), (1310, 1440), (1470, 1200), (1525, 740), (1650, 870), (1715, 1285), (1800, 625), (2200, 1075)]
 
 def random_path(campus_graph):
     """
@@ -61,7 +62,7 @@ def visualize_random_path(campus_graph, iterations = 100):
     best_random = iterate_random_algorithm(campus_graph, iterations)
     for i in range(len(best_random[1])):
         best_random[1][i] = NODE_NAMES[best_random[1][i]]
-    g.create_network(best_random[1], best_random[2])
+    g.create_network(best_random[1], POSITIONS, best_random[2])
     g.visualize()
 
 visualize_random_path(CAMPUS_GRAPH, 1000)
