@@ -62,7 +62,7 @@ def aco_path(campus_graph):
     return AntColony(np.array(new_dist_map), campus_graph).run()
 
 
-def iterate_random_algorithm(campus_graph, iterations=100):
+def iterate_algorithm(campus_graph, iterations=100, algorithm='random'):
     """
     Iterates the random pathfinding algorithm a specified number of times and 
     finds the best path over all iterations.
@@ -81,7 +81,8 @@ def iterate_random_algorithm(campus_graph, iterations=100):
     assert iterations > 0, "Number of iterations must be greater than 0"
     best = [float('inf'), [], []]
     for it in range(iterations):
-        current = random_path(campus_graph)
+        current = random_path(campus_graph) if algorithm == 'random' else aco_path(
+            campus_graph)
         if current[0] < best[0]:
             best = current
     return best
@@ -97,7 +98,7 @@ def visualize_path(campus_graph, algorithm='random', iterations=100):
         iterations (int): The number of iterations to perform. Default is 100.
     """
     g = GraphVisualization()
-    total_cost, path, weights = iterate_random_algorithm(
+    total_cost, path, weights = iterate_algorithm(
         campus_graph, iterations) if algorithm == 'random' else aco_path(campus_graph)
     print(f"Total cost: {total_cost}, with the path {path}")
     print(f"Weights for this path: {weights}")
@@ -112,10 +113,12 @@ def compare_algorithms(min_nodes=4, max_nodes=15):
     for nodes in node_counts:
         campus_graph = create_campus_graph(nodes)
 
-        total_cost_random, _, _ = iterate_random_algorithm(campus_graph)
+        total_cost_random, _, _ = iterate_algorithm(
+            campus_graph, iterations=100)
         random_weights.append(total_cost_random)
 
-        total_cost_aco, _, _ = aco_path(campus_graph)
+        total_cost_aco, _, _ = iterate_algorithm(
+            campus_graph, algorithm='aco', iterations=100)
         aco_weights.append(total_cost_aco)
 
     # Plotting
