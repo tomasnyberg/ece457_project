@@ -52,7 +52,7 @@ class AntColony(object):
         best_path = self.edges_to_nodes_ordered(shortest_path)
         weights = self.prepare_weights(best_path)
         sum_weight = sum(weights)
-        return best_path, weights, sum_weight
+        return sum_weight, best_path, weights 
     # Spread pheromones from ants
 
     def spread_pheromone(self, all_paths, best_ants):
