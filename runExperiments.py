@@ -134,4 +134,9 @@ def compare_algorithms(min_nodes=4, max_nodes=15):
     plt.show()
 
 
+print("Showing example path of random pathfinding algorithm")
+visualize_path(CAMPUS_GRAPH, algorithm='random', iterations=1)
+print("Showing example path of ACO pathfinding algorithm")
+visualize_path(CAMPUS_GRAPH, algorithm='aco', iterations=1)
+print("Comparing the two algorithms. This might take a while (approx 1-2 min).")
 compare_algorithms()
