@@ -26,9 +26,9 @@ class AntColony(object):
         self.campus_graph = campus_graph
         self.pheromone = np.ones(self.distances.shape) / len(distances)
         self.all_indexes = range(len(distances))
-        self.number_ants = 1
-        self.best_ants = 1
-        self.number_iterations = 100
+        self.number_ants = 50
+        self.best_ants = 10
+        self.number_iterations = 1000
         self.decay = 0.95
         self.alpha = 1
         self.beta = 1
@@ -62,7 +62,7 @@ class AntColony(object):
                 if path_distance != 0:
                     self.pheromone[move] += 1.0 / self.distances[move]
                 else:
-                    self.pheromone[move] += 1.0
+                    self.pheromone[move] += 0
     # Generates the path distance available. Checks distances
 
     def generate_path_distance(self, path):
