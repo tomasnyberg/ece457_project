@@ -100,18 +100,14 @@ class AntColony(object):
             if(node == 0):
                 # Only for first node like (0,0), (1, 1)
                 distances = self.distances[previous]
-                ant_pheromone = self.pheromone[previous]
             else:
                 # This is formatted as [1,2,3,4,5,...]
                 weights = self.campus_graph.edges[previous, start]["weights"]
-                occupancy = self.campus_graph.edges[previous, start]["occupancies"]
                 distances = 1 / weights
-                evaporation = 1 - self.decay
                 # update local with occupancy information to check availability of ants
                 # remove occupancy if not required. 
                 # Update pheromone locally
-                ant_pheromone = self.pheromone[previous] + (occupancy * evaporation)
-                
+            
             # We can do availability = 1/ occupancies
             ant_pheromone = self.pheromone[previous]
             move = self.pick_move(ant_pheromone, distances, visited)
