@@ -117,8 +117,7 @@ def compare_algorithms(min_nodes=4, max_nodes=15):
             campus_graph, iterations=100)
         random_weights.append(total_cost_random)
 
-        total_cost_aco, _, _ = iterate_algorithm(
-            campus_graph, algorithm='aco', iterations=100)
+        total_cost_aco, _, _ = aco_path(campus_graph)
         aco_weights.append(total_cost_aco)
 
     # Plotting

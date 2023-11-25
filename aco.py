@@ -45,8 +45,8 @@ class AntColony(object):
             shortest_path = min(all_paths, key=lambda x: x[1])
             
             if shortest_path[1] < all_time_shortest_path[1]:
-                print("New path:{}".format(shortest_path))
-                print("This is new shortest:{}".format(shortest_path[1]))
+                # print("New path:{}".format(shortest_path))
+                # print("This is new shortest:{}".format(shortest_path[1]))
                 all_time_shortest_path = shortest_path
             
             self.pheromone = self.pheromone * self.decay
