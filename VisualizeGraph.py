@@ -19,7 +19,7 @@ class GraphVisualization:
 
         for i in range(n_nodes - 1):
             self.edges.append([path[i], path[i+1]])
-            self.labels[(path[i], path[i+1])] = weights[i]
+            self.labels[(path[i], path[i+1])] = "[" + str(i+1) + "] " + str(weights[i])
 
             self.graph.add_node(path[i], pos=position[path[i]])
             self.color_map.append('#FA8072') if i == 0 else self.color_map.append('#02CCFE')
